@@ -1,0 +1,39 @@
+create or replace PACKAGE package_alumnos
+IS
+    -- TIPO DE DATOS
+	TYPE tipoDatos is record (
+	idUsuario  ALUMNOS.ID_ALUMNO%TYPE,
+	nombre	   ALUMNOS.NOMBRE%TYPE,
+	apellido   ALUMNOS.APELLIDO%TYPE,
+    dni        ALUMNOS.DNI%TYPE,
+	fnacimien  ALUMNOS.FECHA_NACIMIENTO%TYPE,
+	direccion  ALUMNOS.DIRECCION%TYPE,
+	telefono   ALUMNOS.TELEFONO%TYPE,
+	mail	   ALUMNOS.EMAIL%TYPE
+	);
+
+	-- VALIDACION DE ID + DNI
+	FUNCTION datos (
+	idUsuario in NUMBER, dni in NUMBER, alumno IN OUT tipoDatos
+	)
+    RETURN VARCHAR;
+
+	-- AGREGO FUNCION PARA VERIFICACION DE ID
+	FUNCTION testId (
+	idUsuario in NUMBER, returnId IN OUT tipoDatos
+	)
+    RETURN VARCHAR;
+	
+	-- SP PARA MODIFICACION DE DATOS (UPDATE)
+    PROCEDURE modDatos (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
+    pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
+    pMail in varchar2);
+	
+	--  SP PARA INSERTAR DATOS/NUEVO USUARIO
+    PROCEDURE insUser (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
+    pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
+    pMail in varchar2);
+	
+	-- SP PARA ELIMINAR USUARIO
+	PROCEDURE delUser (idUsuario in NUMBER);
+END;

@@ -1,0 +1,88 @@
+create or replace PACKAGE BODY package_alumnos
+IS
+	-- BODY FUNCION PARA VALIDACION DE DATOS ID/DNI E INGRESO AL SISTEMA
+   FUNCTION datos (idUsuario in NUMBER, dni in NUMBER, alumno IN OUT tipoDatos)
+   RETURN VARCHAR
+   IS
+      BEGIN
+      	SELECT 
+		ID_ALUMNO, NOMBRE, APELLIDO, DNI, FECHA_NACIMIENTO,
+		DIRECCION, TELEFONO, EMAIL
+		INTO
+	  alumno.idUsuario,         
+	  alumno.nombre,            
+	  alumno.apellido,
+      alumno.dni,
+	  alumno.fnacimien,        
+	  alumno.direccion,               
+	  alumno.telefono,                
+	  alumno.mail
+	 FROM ALUMNOS
+	 WHERE (ID_ALUMNO = idUsuario AND DNI = dni);
+      RETURN 'OK';
+        EXCEPTION
+      WHEN no_data_found THEN
+         RETURN 'ERROR-'||'No existe un usuario para el Nro de ID/DNI:'|| idUsuario || '/' || dni;
+      WHEN too_many_rows THEN
+         RETURN 'ERROR-'||'Existe mas de un usuario para el Nro de ID/DNI:'|| idUsuario || '/' || dni;
+      WHEN others THEN
+         RETURN 'ERROR-'||SQLERRM;
+   END;
+   
+   FUNCTION testId (idUsuario in NUMBER, returnId IN OUT tipoDatos)
+   RETURN VARCHAR
+   IS
+      BEGIN
+      	SELECT 
+		ID_ALUMNO
+		INTO
+        returnId.idUsuario
+	 FROM ALUMNOS
+	 WHERE (ID_ALUMNO = idUsuario);
+      RETURN 'ID EXISTENTE';
+        EXCEPTION
+      WHEN no_data_found THEN
+         RETURN 'ERROR-'||'No existe un usuario para el Nro de ID:'|| idUsuario;
+      WHEN others THEN
+         RETURN 'ERROR-'||SQLERRM;
+   END;
+   
+	-- BODY SP PARA ACTUALIZACION DE DATOS
+   PROCEDURE modDatos (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
+    pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
+    pMail in varchar2)
+    IS
+        BEGIN
+        UPDATE alumnos
+        SET NOMBRE = pNombre, APELLIDO = pApellido, DNI = pDni,
+        FECHA_NACIMIENTO = TO_DATE(pFnacimien,'DD/MM/YYYY'), DIRECCION = pDireccion, TELEFONO = pTelefono, EMAIL = pMail
+        WHERE ID_ALUMNO = idUsuario;
+    END;
+    
+	-- BODY SP PARA INSERTAR USUARIO
+	PROCEDURE insUser (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
+    pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
+    pMail in varchar2)
+    IS
+        BEGIN
+        INSERT INTO ALUMNOS(ID_ALUMNO, NOMBRE, APELLIDO, DNI, FECHA_NACIMIENTO, DIRECCION, TELEFONO, EMAIL)
+        VALUES (
+        idUsuario,
+        pNombre,
+        pApellido,
+        pDni,
+        TO_DATE(pFnacimien,'DD/MM/YYYY'),
+        pDireccion,
+        pTelefono,
+        pMail);
+    END;
+
+	-- BODY SP PARA ELIMINAR USUARIO
+	PROCEDURE delUser (idUsuario in NUMBER)
+	IS
+	BEGIN
+	DELETE FROM ALUMNOS 
+	WHERE ID_ALUMNO = idUsuario; 
+	END;
+    
+END;
