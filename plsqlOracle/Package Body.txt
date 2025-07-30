@@ -39,7 +39,7 @@ IS
         returnId.idUsuario
 	 FROM ALUMNOS
 	 WHERE (ID_ALUMNO = idUsuario);
-      RETURN 'ID EXISTENTE';
+      RETURN 'ALUMNO EXISTENTE';
         EXCEPTION
       WHEN no_data_found THEN
          RETURN 'ERROR-'||'No existe un usuario para el Nro de ID:'|| idUsuario;
