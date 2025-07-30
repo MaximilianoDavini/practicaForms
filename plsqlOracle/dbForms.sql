@@ -1,5 +1,5 @@
 --------------------------------------------------------
--- Archivo creado  - martes-julio-29-2025   
+-- Archivo creado  - miércoles-julio-30-2025   
 --------------------------------------------------------
 --------------------------------------------------------
 --  DDL for Type LOGMNR$COL_GG_REC
@@ -7717,14 +7717,30 @@ IS
 	mail	   ALUMNOS.EMAIL%TYPE
 	);
 
+	-- VALIDACION DE ID + DNI
 	FUNCTION datos (
 	idUsuario in NUMBER, dni in NUMBER, alumno IN OUT tipoDatos
 	)
     RETURN VARCHAR;
 
+	-- AGREGO FUNCION PARA VERIFICACION DE ID
+	FUNCTION testId (
+	idUsuario in NUMBER, returnId IN OUT tipoDatos
+	)
+    RETURN VARCHAR;
+
+	-- SP PARA MODIFICACION DE DATOS (UPDATE)
     PROCEDURE modDatos (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
     pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
     pMail in varchar2);
+
+	--  SP PARA INSERTAR DATOS/NUEVO USUARIO
+    PROCEDURE insUser (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
+    pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
+    pMail in varchar2);
+
+	-- SP PARA ELIMINAR USUARIO
+	PROCEDURE delUser (idUsuario in NUMBER);
 END;
 
 /
@@ -7734,6 +7750,7 @@ END;
 
   CREATE OR REPLACE NONEDITIONABLE PACKAGE BODY "SYSTEM"."PACKAGE_ALUMNOS" 
 IS
+	-- BODY FUNCION PARA VALIDACION DE DATOS ID/DNI E INGRESO AL SISTEMA
    FUNCTION datos (idUsuario in NUMBER, dni in NUMBER, alumno IN OUT tipoDatos)
    RETURN VARCHAR
    IS
@@ -7762,16 +7779,62 @@ IS
          RETURN 'ERROR-'||SQLERRM;
    END;
 
+   FUNCTION testId (idUsuario in NUMBER, returnId IN OUT tipoDatos)
+   RETURN VARCHAR
+   IS
+      BEGIN
+      	SELECT 
+		ID_ALUMNO
+		INTO
+        returnId.idUsuario
+	 FROM ALUMNOS
+	 WHERE (ID_ALUMNO = idUsuario);
+      RETURN 'ID EXISTENTE';
+        EXCEPTION
+      WHEN no_data_found THEN
+         RETURN 'ERROR-'||'No existe un usuario para el Nro de ID:'|| idUsuario;
+      WHEN others THEN
+         RETURN 'ERROR-'||SQLERRM;
+   END;
+
+	-- BODY SP PARA ACTUALIZACION DE DATOS
    PROCEDURE modDatos (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
     pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
     pMail in varchar2)
     IS
-    BEGIN
-    UPDATE alumnos
-    SET NOMBRE = pNombre, APELLIDO = pApellido, DNI = pDni,
-    FECHA_NACIMIENTO = TO_DATE(pFnacimien,'DD/MM/YYYY'), DIRECCION = pDireccion, TELEFONO = pTelefono, EMAIL = pMail
-    WHERE ID_ALUMNO = idUsuario;
+        BEGIN
+        UPDATE alumnos
+        SET NOMBRE = pNombre, APELLIDO = pApellido, DNI = pDni,
+        FECHA_NACIMIENTO = TO_DATE(pFnacimien,'DD/MM/YYYY'), DIRECCION = pDireccion, TELEFONO = pTelefono, EMAIL = pMail
+        WHERE ID_ALUMNO = idUsuario;
     END;
+
+	-- BODY SP PARA INSERTAR USUARIO
+	PROCEDURE insUser (idUsuario in NUMBER, pNombre in VARCHAR2, pApellido in VARCHAR2,
+    pDni in varchar2, pFnacimien in varchar2, pDireccion in varchar2, pTelefono in varchar2,
+    pMail in varchar2)
+    IS
+        BEGIN
+        INSERT INTO ALUMNOS(ID_ALUMNO, NOMBRE, APELLIDO, DNI, FECHA_NACIMIENTO, DIRECCION, TELEFONO, EMAIL)
+        VALUES (
+        idUsuario,
+        pNombre,
+        pApellido,
+        pDni,
+        TO_DATE(pFnacimien,'DD/MM/YYYY'),
+        pDireccion,
+        pTelefono,
+        pMail);
+    END;
+
+	-- BODY SP PARA ELIMINAR USUARIO
+	PROCEDURE delUser (idUsuario in NUMBER)
+	IS
+	BEGIN
+	DELETE FROM ALUMNOS 
+	WHERE ID_ALUMNO = idUsuario; 
+	END;
+
 END;
 
 /
